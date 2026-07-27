@@ -5,7 +5,7 @@ A Copilot skill that routes Java upgrade and CVE remediation requests to the **G
 ## Install
 
 ```
-@copilot /install-plugin github:haoozhang/copilot-java-modernize-routing
+copilot skill add https://raw.githubusercontent.com/haoozhang/copilot-java-modernize-routing/main/.github/skills/java-modernize-routing/SKILL.md
 ```
 
 Or open this repo in VS Code to use it as a workspace-scoped skill.
