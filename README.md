@@ -28,3 +28,13 @@ This is the better option when you want the same routing behavior available in m
 ## Validation
 
 See `TEST-PROMPTS.md` for example prompts that should trigger the recommendation, partially trigger it, or not trigger it at all.
+
+## Screenshots
+
+**Step 1 — Routing prompt appears:** When a CVE/upgrade request is detected, Copilot surfaces a two-option question asking how to proceed.
+
+![Routing prompt](screenshots/01-routing-prompt.png)
+
+**Step 2 — Extension installed and agent invoked:** After the user selects "Use GitHub Copilot modernization", the extension is installed (if needed) and the specialized security agent takes over.
+
+![Agent invocation](screenshots/02-agent-invocation.png)
