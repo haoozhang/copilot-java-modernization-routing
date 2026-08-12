@@ -7,11 +7,13 @@ param(
 $ErrorActionPreference = 'Stop'
 $summaryPath = Join-Path $RunDirectory 'summary.json'
 $summary = Get-Content $summaryPath -Raw | ConvertFrom-Json
+# Exclude infrastructure failures from behavior metrics while reporting them separately.
 $completed = @($summary.results | Where-Object { $_.status -eq 'completed' })
-$truePositive = @($completed | Where-Object { $_.expectedTrigger -and $_.skillInvoked }).Count
-$trueNegative = @($completed | Where-Object { -not $_.expectedTrigger -and -not $_.skillInvoked }).Count
-$falsePositive = @($completed | Where-Object { -not $_.expectedTrigger -and $_.skillInvoked }).Count
-$falseNegative = @($completed | Where-Object { $_.expectedTrigger -and -not $_.skillInvoked }).Count
+# Treat expectedRecommendation as truth and actualRecommendation as the prediction.
+$truePositive = @($completed | Where-Object { $_.expectedRecommendation -and $_.actualRecommendation }).Count
+$trueNegative = @($completed | Where-Object { -not $_.expectedRecommendation -and -not $_.actualRecommendation }).Count
+$falsePositive = @($completed | Where-Object { -not $_.expectedRecommendation -and $_.actualRecommendation }).Count
+$falseNegative = @($completed | Where-Object { $_.expectedRecommendation -and -not $_.actualRecommendation }).Count
 
 function Get-Ratio([int]$Numerator, [int]$Denominator) {
     if ($Denominator -eq 0) { return $null }
@@ -21,6 +23,7 @@ function Get-Ratio([int]$Numerator, [int]$Denominator) {
 function Get-Percentile([long[]]$Values, [double]$Percentile) {
     if ($Values.Count -eq 0) { return $null }
     $sorted = @($Values | Sort-Object)
+    # Use the nearest-rank definition so reported percentiles are observed run values.
     $index = [math]::Ceiling($Percentile * $sorted.Count) - 1
     return $sorted[[math]::Max(0, $index)]
 }
@@ -53,26 +56,29 @@ $metrics = [ordered]@{
 
 $metrics | ConvertTo-Json | Set-Content (Join-Path $RunDirectory 'metrics.json') -Encoding utf8
 
+# Build Markdown as lines to keep the generated report deterministic and diff-friendly.
 $lines = @(
     '# Benchmark Report',
     '',
     "- Run: ``$($metrics.runId)``",
     "- Model: ``$($metrics.model)``",
     "- Completed: $($metrics.completedRuns) / $($metrics.totalRuns)",
+    "- Tokens (input / output / total): $($metrics.inputTokens) / $($metrics.outputTokens) / $($metrics.totalTokens)",
+    "- Tokens per run (average / P50 / P95 / max): $($metrics.averageTokensPerRun) / $($metrics.p50TokensPerRun) / $($metrics.p95TokensPerRun) / $($metrics.maxTokensPerRun)",
+    '',
     "- Precision: $($metrics.precision)",
     "- Recall: $($metrics.recall)",
     "- Accuracy: $($metrics.accuracy)",
     "- False-positive rate: $($metrics.falsePositiveRate)",
-    "- Tokens (input / output / total): $($metrics.inputTokens) / $($metrics.outputTokens) / $($metrics.totalTokens)",
-    "- Tokens per run (average / P50 / P95 / max): $($metrics.averageTokensPerRun) / $($metrics.p50TokensPerRun) / $($metrics.p95TokensPerRun) / $($metrics.maxTokensPerRun)",
+    "- TP / TN / FP / FN: $truePositive / $trueNegative / $falsePositive / $falseNegative",
     '',
-    '| Case | Fixture | Expected | Invoked | Result | Tokens |',
+    '| Case | Fixture | Expected recommendation | Actual recommendation | Result | Tokens |',
     '| --- | --- | ---: | ---: | --- | ---: |'
 )
 
 foreach ($result in $summary.results) {
     $outcome = if ($result.status -ne 'completed') { 'ERROR' } elseif ($result.passed) { 'PASS' } else { 'FAIL' }
-    $lines += "| $($result.caseId) | $($result.fixture) | $($result.expectedTrigger) | $($result.skillInvoked) | $outcome | $($result.totalTokens) |"
+    $lines += "| $($result.caseId) | $($result.fixture) | $($result.expectedRecommendation) | $($result.actualRecommendation) | $outcome | $($result.totalTokens) |"
 }
 
 $lines | Set-Content (Join-Path $RunDirectory 'report.md') -Encoding utf8

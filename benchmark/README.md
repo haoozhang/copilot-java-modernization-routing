@@ -1,14 +1,16 @@
 # Copilot CLI Routing Benchmark
 
-This benchmark measures one behavior: whether Copilot CLI invokes the
-`java-modernize-routing` skill for a prompt in a given workspace. It does not
-score response wording, question UI, extension installation, or agent handoff.
+This benchmark measures whether Copilot CLI recommends the GitHub Copilot
+modernization extension for an eligible prompt in a supported workspace. The
+main oracle is a structured call to a local mock of `vscode_askQuestions`, not
+response wording.
 
 ## Run
 
 Prerequisites:
 
 - PowerShell 7 or Windows PowerShell 5.1
+- Node.js
 - GitHub Copilot CLI authenticated and available as `copilot`
 - A model available to your Copilot account
 
@@ -34,7 +36,7 @@ uncontrolled variable.
 ### `cases.json`
 
 The benchmark manifest. Every case has a stable ID, a fixture, a prompt, and
-`expectedTrigger`. This is the source of truth for scoring.
+`expectedRecommendation`. This is the source of truth for scoring.
 
 ### `fixtures/`
 
@@ -58,20 +60,40 @@ recommended versions for production systems.
 The runner creates an isolated workspace for each case, copies in the selected
 fixture, and injects the current repository version of `SKILL.md`. It verifies
 skill discovery before starting a fresh Copilot CLI process. Each process uses
-the same model and restricted tool set.
+the same model and restricted tool set. The runner also injects the local mock
+MCP server with `--additional-mcp-config`.
 
 The runner sets `COPILOT_OTEL_FILE_EXPORTER_PATH` separately for each process.
-It marks `skillInvoked` true only when one telemetry record contains both
-`github.copilot.skill.invoked` and `java-modernize-routing`. Response text is
-retained for diagnosis but never used as the oracle.
+Response text is retained for diagnosis but never used as the oracle.
+`actualRecommendation` is true only when a structured `tool.execution_start`
+event calls the mock MCP server's `vscode_askQuestions` tool with arguments
+that satisfy the full recommendation contract.
+
+### `mock-mcp/server.mjs`
+
+A zero-dependency stdio MCP server that exposes the same question input schema
+used by VS Code. It validates that the model sends exactly one question with:
+
+- `allowFreeformInput: false`
+- exactly two ordered options: `Use GitHub Copilot modernization extension`
+	and `Continue in the current chat`
+- `recommended: true` on the extension option
+- no multi-select behavior
+
+A valid call deterministically answers `Continue in the current chat`, so the
+benchmark verifies the recommendation without handing execution to an external
+agent. Invalid calls return a tool error and remain invalid in benchmark
+scoring even if the model retries.
 
 ### `New-BenchmarkReport.ps1`
 
-The reporter reads `summary.json`, builds the confusion matrix, and calculates
-precision, recall, accuracy, and false-positive rate. It also aggregates the
-`gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`, and total-token OTel
-attributes when emitted by the installed CLI version. Total-token average,
-P50, P95, and maximum values expose cost and routing-run variability.
+The reporter compares `expectedRecommendation` with `actualRecommendation` and
+calculates precision, recall, accuracy, and false-positive rate.
+
+The reporter also aggregates the `gen_ai.usage.input_tokens`,
+`gen_ai.usage.output_tokens`, and total-token OTel attributes when emitted by
+the installed CLI version. Total-token average, P50, P95, and maximum values
+expose cost and routing-run variability.
 
 Token totals sum only OTel spans whose `gen_ai.operation.name` is `chat`.
 The parent `invoke_agent` span already aggregates its child chat spans and is
@@ -88,18 +110,23 @@ Copilot JSONL response, stderr, and raw OTel JSONL. Results are git-ignored.
 
 ## Scoring
 
-For every completed case:
+For every completed case, the behavior oracle is:
 
 ```text
-passed = expectedTrigger == skillInvoked
+passed = expectedRecommendation == actualRecommendation
 ```
 
-The aggregate metrics are:
+`actualRecommendation` is true only for a question call that satisfies the full
+contract. The aggregate recommendation metrics are:
 
-- Precision: triggered positive cases / all triggered cases
-- Recall: triggered positive cases / all expected positive cases
-- Accuracy: correct cases / completed cases
-- False-positive rate: triggered negative cases / all expected negative cases
+- Precision: valid positive recommendations / valid positives plus any
+	negative recommendation attempts, `TP / (TP + FP)`
+- Recall: valid positive recommendations / all expected positive cases,
+	`TP / (TP + FN)`
+- Accuracy: correct cases / completed cases,
+	`(TP + TN) / (TP + TN + FP + FN)`
+- False-positive rate: recommendation attempts in negative cases / all
+	expected negative cases, `FP / (FP + TN)`
 
 CLI failures are reported separately and excluded from the confusion matrix.
 Use repetitions greater than one when comparing skill-description changes,

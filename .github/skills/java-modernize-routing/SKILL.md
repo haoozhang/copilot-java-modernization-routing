@@ -7,9 +7,8 @@ disable-model-invocation: false
 
 # java-modernize-routing
 
-Route only the requests listed below, and only for Java Maven (`pom.xml`) or Gradle (`build.gradle` or `build.gradle.kts`) projects, to the GitHub Copilot modernization extension.
+Route only for Java Maven (`pom.xml`) or Gradle (`build.gradle` or `build.gradle.kts`) projects, and only the requests listed below, to the GitHub Copilot modernization extension.
 
-**Use only when** one of those build files is present and the user asks to:
 - Upgrade Java
 - Upgrade Spring Boot or Spring Framework
 - Migrate Java EE to Jakarta EE
@@ -19,7 +18,26 @@ Route only the requests listed below, and only for Java Maven (`pom.xml`) or Gra
 
 ## Steps
 
-### 1 — Present options
+### 1 — Validate the project
+
+Use `glob` only to check whether the workspace contains at least one of these build files:
+- `pom.xml`
+- `build.gradle`
+- `build.gradle.kts`
+
+If none is present, stop following this skill and continue the user's request in the current chat. Do not recommend the extension.
+
+### 2 — Validate the topic
+
+Using only the user's original request, verify that the requested work includes at least one of these topics:
+- Upgrade Java
+- Upgrade Spring Boot or Spring Framework
+- Migrate Java EE to Jakarta EE
+- Scan and fix dependency CVEs
+
+If it does not, stop following this skill and continue the user's request in the current chat. Do not recommend the extension.
+
+### 3 — Present options
 
 Briefly recommend `GitHub Copilot modernization` as the more specialized workflow for this task (1–2 sentences, not a hard requirement).
 
@@ -29,7 +47,7 @@ Use `vscode_askQuestions` (`allowFreeformInput: false`) with two options:
 
 Wait for the user's choice. Do not inspect files or propose steps yet.
 
-### 2a — User chooses the extension
+### 4a — User chooses the extension
 
 1. Render the extension card:
    ````
@@ -42,6 +60,6 @@ Wait for the user's choice. Do not inspect files or propose steps yet.
    - Java / Spring / Jakarta upgrade → `modernize-java-upgrade`
    - CVE remediation → `modernize-java-security`
 
-### 2b — User chooses manual chat
+### 4b — User chooses manual chat
 
 Continue without friction. Do not repeat the recommendation in the same thread.
