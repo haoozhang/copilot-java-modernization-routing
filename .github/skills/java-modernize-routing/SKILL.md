@@ -1,21 +1,21 @@
 ---
 name: java-modernize-routing
-description: 'For Maven or Gradle projects: upgrade Java, Spring Boot, Spring Framework, Java EE, or Jakarta EE; scan and fix dependency CVEs. Routes these tasks to the GitHub Copilot modernization extension. USE FOR: Java upgrade, Spring Boot upgrade, Jakarta EE migration, Java dependency CVE scan or fix.'
+description: 'Use only when the workspace contains a Java Maven (pom.xml) or Gradle (build.gradle/build.gradle.kts) project and the user asks to upgrade Java, Spring Boot, or Spring Framework; migrate Java EE to Jakarta EE; or scan and fix dependency CVEs. Do not invoke for any other scenario.'
 user-invocable: true
 disable-model-invocation: false
 ---
 
 # java-modernize-routing
 
-Route upgrade and CVE remediation requests for Java Maven or Gradle projects to the GitHub Copilot modernization extension before falling back to general-purpose chat.
+Route only the requests listed below, and only for Java Maven (`pom.xml`) or Gradle (`build.gradle` or `build.gradle.kts`) projects, to the GitHub Copilot modernization extension.
 
-**Use when** the user asks to perform any of the following in a Java Maven or Gradle project:
-- Java version upgrade
-- Spring Framework / Spring Boot upgrade
-- Java EE / Jakarta EE upgrade
-- Dependency CVE scanning and remediation
+**Use only when** one of those build files is present and the user asks to:
+- Upgrade Java
+- Upgrade Spring Boot or Spring Framework
+- Migrate Java EE to Jakarta EE
+- Scan and fix dependency CVEs
 
-**NOT for**: non-Maven/Gradle projects, general Java coding, architecture design, or non-Java topics.
+**Do not use for any other scenario.**
 
 ## Steps
 

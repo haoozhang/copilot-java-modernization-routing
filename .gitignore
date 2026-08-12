@@ -1,0 +1,6 @@
+benchmark/results/
+benchmark/fixtures/**/.gradle/
+benchmark/fixtures/**/build/
+benchmark/fixtures/**/target/
+benchmark/fixtures/**/lib/
+benchmark/fixtures/**/node_modules/

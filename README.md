@@ -27,3 +27,6 @@ Or open this repo in VS Code to use it as a workspace-scoped skill.
 ## Validation
 
 See `TEST-PROMPTS.md` for example prompts.
+
+For an automated routing benchmark using Copilot CLI and OpenTelemetry, see
+[`benchmark/README.md`](benchmark/README.md).
