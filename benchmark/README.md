@@ -25,11 +25,19 @@ Run selected cases or repeat cases to measure routing stability:
 ```powershell
 .\benchmark\Run-Benchmark.ps1 -CaseId maven-java-upgrade,ant-java-upgrade
 .\benchmark\Run-Benchmark.ps1 -Repetitions 3 -Model <available-model-name>
+.\benchmark\Run-Benchmark.ps1 -ThrottleLimit 4
 ```
 
 The default model is `auto`, which works across Copilot plans. For comparisons,
 pass the same explicit model to every run so model selection does not become an
 uncontrolled variable.
+
+`ThrottleLimit` defaults to `2` and accepts values from 1 through 32. Pass
+`-ThrottleLimit 1` for serial execution. Parallel runs use an isolated
+PowerShell process for every active case so workspaces, CLI state, and OTel
+destinations cannot overlap. Higher concurrency can increase Copilot service
+throttling and machine resource usage. Keep the same throttle and explicit
+model when comparing benchmark runs.
 
 ## Components
 
@@ -68,6 +76,12 @@ Response text is retained for diagnosis but never used as the oracle.
 `actualRecommendation` is true only when a structured `tool.execution_start`
 event calls the mock MCP server's `vscode_askQuestions` tool with arguments
 that satisfy the full recommendation contract.
+
+The runner delegates each case to `Invoke-BenchmarkCase.ps1` and starts at most
+`ThrottleLimit` workers at once. Workers write their own `result.json`; the
+runner sorts those results back into manifest and repetition order before
+creating the summary and report. A worker failure is recorded as an
+`infrastructure-error` without discarding other case results.
 
 ### `mock-mcp/server.mjs`
 

@@ -1,6 +1,6 @@
 ---
 name: java-modernize-routing
-description: 'Use only when the workspace contains a Java Maven (pom.xml) or Gradle (build.gradle/build.gradle.kts) project and the user asks to upgrade Java, Spring Boot, or Spring Framework; migrate Java EE to Jakarta EE; or scan and fix dependency CVEs. Do not invoke for any other scenario.'
+description: 'Use only when the workspace contains a Java Maven (pom.xml) or Gradle (build.gradle/build.gradle.kts) project and the user asks to upgrade Java/JDK version, Spring Boot version, or Spring Framework version; migrate Java EE to Jakarta EE; or scan and fix dependency CVEs. Do not invoke for any other scenario.'
 user-invocable: true
 disable-model-invocation: false
 ---
@@ -9,8 +9,8 @@ disable-model-invocation: false
 
 Route only for Java Maven (`pom.xml`) or Gradle (`build.gradle` or `build.gradle.kts`) projects, and only the requests listed below, to the GitHub Copilot modernization extension.
 
-- Upgrade Java
-- Upgrade Spring Boot or Spring Framework
+- Upgrade Java/JDK version
+- Upgrade Spring Boot version or Spring Framework version
 - Migrate Java EE to Jakarta EE
 - Scan and fix dependency CVEs
 
@@ -30,8 +30,8 @@ If none is present, stop following this skill and continue the user's request in
 ### 2 — Validate the topic
 
 Using only the user's original request, verify that the requested work includes at least one of these topics:
-- Upgrade Java
-- Upgrade Spring Boot or Spring Framework
+- Upgrade Java/JDK version
+- Upgrade Spring Boot version or Spring Framework version
 - Migrate Java EE to Jakarta EE
 - Scan and fix dependency CVEs
 
