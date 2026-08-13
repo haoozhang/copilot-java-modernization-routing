@@ -1,0 +1,69 @@
+<project name="sales-report" default="test">
+  <property name="main.src.dir" location="src/main/java" />
+  <property name="test.src.dir" location="src/test/java" />
+  <property name="main.build.dir" location="build/classes/main" />
+  <property name="test.build.dir" location="build/classes/test" />
+  <property name="lib.dir" location="lib" />
+  <property name="commons.csv.version" value="1.10.0" />
+  <property name="javaee.version" value="8.0.1" />
+  <property name="junit.version" value="1.10.2" />
+
+  <path id="main.classpath">
+    <fileset dir="${lib.dir}" includes="commons-csv-*.jar" />
+    <fileset dir="${lib.dir}" includes="javaee-api-*.jar" />
+  </path>
+
+  <path id="test.classpath">
+    <pathelement location="${main.build.dir}" />
+    <path refid="main.classpath" />
+    <fileset dir="${lib.dir}" includes="junit-platform-console-standalone-*.jar" />
+  </path>
+
+  <target name="resolve">
+    <mkdir dir="${lib.dir}" />
+    <get src="https://repo.maven.apache.org/maven2/org/apache/commons/commons-csv/${commons.csv.version}/commons-csv-${commons.csv.version}.jar"
+         dest="${lib.dir}/commons-csv-${commons.csv.version}.jar" skipexisting="true" />
+        <get src="https://repo.maven.apache.org/maven2/javax/javaee-api/${javaee.version}/javaee-api-${javaee.version}.jar"
+          dest="${lib.dir}/javaee-api-${javaee.version}.jar" skipexisting="true" />
+    <get src="https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-console-standalone/${junit.version}/junit-platform-console-standalone-${junit.version}.jar"
+         dest="${lib.dir}/junit-platform-console-standalone-${junit.version}.jar" skipexisting="true" />
+  </target>
+
+  <target name="compile" depends="resolve">
+    <mkdir dir="${main.build.dir}" />
+    <javac srcdir="${main.src.dir}" destdir="${main.build.dir}" release="17" includeantruntime="false">
+      <classpath refid="main.classpath" />
+    </javac>
+  </target>
+
+  <target name="run" depends="compile">
+    <java classname="com.acme.sales.SalesReportCli" fork="true">
+      <classpath>
+        <pathelement location="${main.build.dir}" />
+        <path refid="main.classpath" />
+      </classpath>
+      <arg value="sales.csv" />
+    </java>
+  </target>
+
+  <target name="test" depends="compile">
+    <mkdir dir="${test.build.dir}" />
+    <javac srcdir="${test.src.dir}" destdir="${test.build.dir}" release="17" includeantruntime="false">
+      <classpath refid="test.classpath" />
+    </javac>
+    <java classname="org.junit.platform.console.ConsoleLauncher" fork="true" failonerror="true">
+      <classpath>
+        <pathelement location="${test.build.dir}" />
+        <path refid="test.classpath" />
+      </classpath>
+      <arg value="execute" />
+      <arg value="--scan-classpath" />
+      <arg value="--disable-banner" />
+    </java>
+  </target>
+
+  <target name="clean">
+    <delete dir="build" />
+    <delete dir="lib" />
+  </target>
+</project>

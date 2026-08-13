@@ -1,0 +1,33 @@
+{
+  "skillName": "java-modernize-routing",
+  "cases": [
+    { "id": "maven-java-upgrade", "fixture": "maven", "expectedRecommendation": true, "prompt": "Help me upgrade this project to Java 21." },
+    { "id": "gradle-cve-fix", "fixture": "gradle", "expectedRecommendation": true, "prompt": "I need to scan and fix dependency CVEs in this project." },
+    { "id": "maven-spring-framework", "fixture": "maven", "expectedRecommendation": true, "prompt": "Upgrade Spring Framework to 6.x." },
+    { "id": "gradle-spring-boot-jakarta", "fixture": "gradle", "expectedRecommendation": true, "prompt": "Upgrade this application to Spring Boot 3.x and handle the Jakarta migration." },
+    { "id": "maven-jakarta-ee", "fixture": "maven", "expectedRecommendation": true, "prompt": "Help me migrate this application to Jakarta EE." },
+    { "id": "maven-mixed-java", "fixture": "maven", "expectedRecommendation": true, "prompt": "Upgrade this project to Java 21 and also create the CONTRIBUTING.md file." },
+    { "id": "gradle-mixed-cve", "fixture": "gradle", "expectedRecommendation": true, "prompt": "Fix dependency CVEs in the Java backend and review the README.md file." },
+    { "id": "maven-mixed-spring", "fixture": "maven", "expectedRecommendation": true, "prompt": "Upgrade this application to Spring Boot 3.x and also remove generated build folders." },
+
+    { "id": "maven-order-pagination", "fixture": "maven", "expectedRecommendation": false, "prompt": "Add pagination to the customer order history endpoint." },
+    { "id": "gradle-azure-migration", "fixture": "gradle", "expectedRecommendation": false, "prompt": "Migrate this Spring Boot application to Azure." },
+    { "id": "maven-order-cancellation", "fixture": "maven", "expectedRecommendation": false, "prompt": "Add an endpoint that lets a customer cancel an order." },
+    { "id": "gradle-jackson-upgrade", "fixture": "gradle", "expectedRecommendation": false, "prompt": "Upgrade the Jackson dependency to the latest version." },
+    { "id": "maven-controller-tests", "fixture": "maven", "expectedRecommendation": false, "prompt": "Add integration tests for the order controller endpoints." },
+    { "id": "gradle-concurrency-review", "fixture": "gradle", "expectedRecommendation": false, "prompt": "Review the atomic stock reservation logic for race conditions." },
+    { "id": "maven-h2-upgrade", "fixture": "maven", "expectedRecommendation": false, "prompt": "Upgrade the H2 database dependency to the latest version." },
+    { "id": "gradle-record-refactor", "fixture": "gradle", "expectedRecommendation": false, "prompt": "Refactor StockItem into a Java 17 record without changing the configured Java version." },
+    { "id": "maven-wrapper", "fixture": "maven", "expectedRecommendation": false, "prompt": "Add Maven Wrapper files so the order service builds with a pinned Maven version." },
+    { "id": "gradle-wrapper-upgrade", "fixture": "gradle", "expectedRecommendation": false, "prompt": "Upgrade the Gradle Wrapper used by this inventory service." },
+
+    { "id": "ant-java-upgrade", "fixture": "ant", "expectedRecommendation": false, "prompt": "Upgrade this project to Java 21." },
+    { "id": "ant-commons-csv-upgrade", "fixture": "ant", "expectedRecommendation": false, "prompt": "Upgrade Apache Commons CSV to the latest version." },
+    { "id": "ant-jakarta", "fixture": "ant", "expectedRecommendation": false, "prompt": "Migrate this sales report from Java EE 8 to Jakarta EE 10." },
+    { "id": "ant-cves", "fixture": "ant", "expectedRecommendation": false, "prompt": "Scan and fix dependency CVEs in this project." },
+    { "id": "npm-express-upgrade", "fixture": "npm", "expectedRecommendation": false, "prompt": "Upgrade the shipping quote API from Express 4 to Express 5." },
+    { "id": "npm-zod-schema", "fixture": "npm", "expectedRecommendation": false, "prompt": "Extend the Zod quote schema to support international destinations." },
+    { "id": "npm-pricing-rule", "fixture": "npm", "expectedRecommendation": false, "prompt": "Add a volume-based surcharge to the shipping quote calculation." },
+    { "id": "npm-cves", "fixture": "npm", "expectedRecommendation": false, "prompt": "Run npm audit and fix vulnerable dependencies in this project." }
+  ]
+}
